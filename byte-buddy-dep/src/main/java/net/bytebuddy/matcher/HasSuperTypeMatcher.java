@@ -56,7 +56,12 @@ public class HasSuperTypeMatcher<T extends TypeDescription> extends ElementMatch
             } else if (matcher.matches(typeDefinition.asGenericType())) {
                 return true;
             }
-            LinkedList<TypeDefinition> interfaceTypes = new LinkedList<TypeDefinition>(typeDefinition.getInterfaces());
+            LinkedList<TypeDefinition> interfaceTypes;
+            try {
+                interfaceTypes = new LinkedList<TypeDefinition>(typeDefinition.getInterfaces());
+            } catch (IllegalStateException e) { // Improve the "Cannot resolve type description for ..." exception.
+                throw new IllegalStateException(e.getMessage() + " on matching " + typeDefinition + " via " + this, e);
+            }
             while (!interfaceTypes.isEmpty()) {
                 TypeDefinition interfaceType = interfaceTypes.removeFirst();
                 if (previous.add(interfaceType.asErasure())) {
